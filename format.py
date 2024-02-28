@@ -1,20 +1,38 @@
 import json
 
-# export interface BibleVerse {
-#   text: string;
-#   parapraphBreak?: boolean;
-#   subtitle?: string;
-# }
+# this class is for storing portions of bible text including hebrew + greek info.
+# multiple BibleText can make up a BibleVerse
+class BibleText:
+    def __init__(self, text, dictionary_code=None, italic=False, bold=False, smallcaps=False):
+        self.text = text
+        self.dictionary_code = dictionary_code
+        self.italic = italic
+        self.bold = bold
+        self.smallcaps = smallcaps
 
-# export interface BibleChapterAndVerses {
-#   book: string;
-#   chapter: number;
-#   verses: { [verseNumber: number]: BibleVerse };
-# }
+    def to_data(self):
+        data = {
+            "text": self.text,
+        }
+
+        if self.dictionary_code:
+            data["dictionaryCode"] = self.dictionary_code
+
+        if self.italic:
+            data["italic"] = self.italic
+
+        if self.bold:
+            data["bold"] = self.bold
+
+        if self.smallcaps:
+            data["smallcaps"] = self.smallcaps
+
+        return data
+
 
 class BibleVerse:
-    def __init__(self, text, paragraph_break, subtitle, verse_number, book, chapter):
-        self.text = text
+    def __init__(self, bible_texts, paragraph_break, subtitle, verse_number, book, chapter):
+        self.bible_texts = bible_texts
         self.paragraph_break = paragraph_break
         self.subtitle = subtitle
         self.verse_number = verse_number
@@ -23,7 +41,7 @@ class BibleVerse:
 
     def to_data(self):
         data = {
-            "text": self.text,
+            "texts": [t.to_data() for t in self.bible_texts],
             "paragraphBreak": self.paragraph_break,
             "subtitle": self.subtitle,
             "verseNumber": self.verse_number
