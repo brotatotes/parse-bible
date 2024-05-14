@@ -1,0 +1,17 @@
+<V>{{43::12}}19<T> : not doing<MG5623> any<MG3762> good<MG5623>
+<V>{{46::13}}3<T> : give<MG5595> all<MG3956> my possessions<MG5225> to feed<MG5595>
+<PM>{{59::2}}18<T> : You have<MG2192> faith<MG4102> and I have<MG2192>
+<V>{{59::3}}4<T> : very<MG1646> small<MG1646> rudder<MG4079>
+<V>{{66::21}}25<T>In the daytime<MG2250> (for <RA>there will be no<MG3756> night<MG3571> there<MG1563>) <RB>its gates<MG4440> <RC>will never<MG3756> be closed<MG2808>;
+<V>{{66::21}}18<T>The material<MG1746b> of the wall<MG5038> was <RA>jasper<MG2393>; and the city<MG4172> was <RB>pure<MG2513> gold<MG5553>, like<MG3664> <N1>clear<MG2513> <RC>glass<MG5194>.
+
+
+<V>{{42::6}}45<T><RS>+“<RA>The good<MG18> man<MG444> out of the good<MG18> <N1>treasure<MG2344> of his heart<MG2588> brings<MG4393> forth<MG4393> what<MG18> is good<MG18>
+good {{{treasure}}} {of} {{his}} {{{heart}}} {{{brings}}} {{{forth}}} what(1)
+
+<PM>{{66::19}}19<T>And I saw<MG3708> <RA>the beast<MG2342> and <RB>the kings<MG935> of the earth<MG1093> and their armies<MG4753> assembled<MG4863> to make<MG4160> war<MG4171> against<MG3326> Him who <RC>sat<MG2521> on the horse<MG2462> and against<MG3326> His army<MG4753>.
+
+<V>{{01::3}}11<T>And He said<MH559>, “Who<MH4310> told<MH5046> you that you were naked<MH5903>? Have you eaten<MH398> from the tree<MH6086> of which<MH834> I commanded<MH6680> you not to eat<MH398>?”
+eaten {from} {the} {{{tree}}} {of} {{{which}}} {I} {{{commanded}}} {{you}} {not} {to} eat(1)
+
+every<MH3605> plant<MH6212a> yielding<MH2232> seed<MH2233> that is on the <N1>surface<MH6440> of all<MH3605>

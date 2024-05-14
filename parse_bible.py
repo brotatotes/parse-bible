@@ -15,6 +15,20 @@ def is_long_tag(text):
 def is_tag(text):
     return re.match(r'^<.+?>$', text) != None
 
+def get_opening_tag(text):
+    match = re.match(r'^<([^/]+?)>$', text)
+    if not match:
+        return None
+    else:
+        return match.group(1)
+
+def get_closing_tag(text):
+    match = re.match(r'^</(.+?)>$', text)
+    if not match:
+        return None
+    else:
+        return match.group(1)
+
 def is_verse_ref(text):
     return re.match(r'^{{\d+::\d+}}\d+<T>$', text) != None
 
@@ -79,7 +93,7 @@ def remove_unwanted_tags(text):
 
     return text
 
-def add_missing_tags(text):
+def add_missing_tags(text, tags):
     # closing tag with no opening tag at the beginning.
     tag = re.search(r'^[^<]*</([^>]+)>', text)
     if tag:
@@ -92,6 +106,10 @@ def add_missing_tags(text):
 
     # br doesn't need closing tags
     text = re.sub(r'</br>', '', text)
+
+    for tag in tags:
+        if tags[tag] > 0 and f'<{tag}>' not in text:
+            text = f'<{tag}>{text}</{tag}>'
 
     return text
 
@@ -155,6 +173,11 @@ def parse_bible(file_path, output_folder):
 
             current_strongs = None
             current_text = None
+            current_tags = {
+                'em': 0,
+                'small': 0,
+                'strong': 0,
+            }
 
             bible_texts = []
 
@@ -169,14 +192,30 @@ def parse_bible(file_path, output_folder):
                         if not current_text:
                             raise Exception(f'no current text for strongs {current_strongs}')
                         
-                        bible_texts.append(BibleText(add_missing_tags(current_text), dictionary_code=current_strongs))
+                        bible_texts.append(BibleText(current_text, dictionary_code=current_strongs))
 
                         current_strongs = None
                         current_text = None
                 else: # just text
-                    current_text = part
+                    current_text = add_missing_tags(part, current_tags)
+
+                    for text in re.split('(</?[^>]+>)', part):
+                        if is_tag(text):
+                            if 'br' in text:
+                                continue 
+
+                            opening_tag, closing_tag = get_opening_tag(text), get_closing_tag(text)
+
+                            if opening_tag:
+                                current_tags[opening_tag] += 1
+
+                            if closing_tag:
+                                current_tags[closing_tag] -= 1
+                                if current_tags[closing_tag] < 0:
+                                    raise Exception(f"closing tag count shouldn't be negative: {closing_tag} {current_tags[closing_tag]}")
+
                     if not current_strongs:
-                        bible_texts.append(BibleText(add_missing_tags(current_text)))
+                        bible_texts.append(BibleText(current_text))
                         current_text = None
 
             # if book == 1 and chapter == 35 and verse == 22:
