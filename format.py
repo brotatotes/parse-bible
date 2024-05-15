@@ -4,7 +4,8 @@ import json
 # multiple BibleText can make up a BibleVerse
 class BibleText:
     def __init__(self, text, dictionary_code=None, italic=False, bold=False, smallcaps=False):
-        self.text = text
+        # limit <br> to two.
+        self.text = text.replace('<br><br><br><br>', '<br><br>').replace('<br><br><br>', '<br><br>')
         self.dictionary_code = dictionary_code
         self.italic = italic
         self.bold = bold
@@ -32,6 +33,13 @@ class BibleText:
 
 class BibleVerse:
     def __init__(self, bible_texts, paragraph_break, subtitle, verse_number, book, chapter):
+        if not bible_texts:
+            raise Exception(f'{book} {chapter}:{verse_number} - empty bible_texts: {bible_texts}')
+        
+        # if there is a subtitle, eat up all the <br> in the first bible_text
+        while subtitle and bible_texts[0].text.startswith('<br>'):
+            bible_texts[0].text = bible_texts[0].text[len('<br>'):]
+
         self.bible_texts = bible_texts
         self.paragraph_break = paragraph_break
         self.subtitle = subtitle

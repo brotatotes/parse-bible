@@ -45,7 +45,7 @@ def get_strongs_tag(text):
     return re.search(r'M([^>]+)', text).group(1)
 
 def is_sub_head(text):
-    return re.match(r'^<SH>.+</SH>$', text) != None
+    return re.match(r'^<S[SH]>.+</S[SH]>$', text) != None
 
 def replace_tags(text):
     text = re.sub(r'<\\>', '<small>', text)
@@ -54,7 +54,11 @@ def replace_tags(text):
     text = re.sub(r'}', '</em>', text)
     text = re.sub(r'<B>', '<strong>', text)
     text = re.sub(r'</B>', '</strong>', text)
-    text = re.sub(r'<PM>', '<br>', text)
+    text = re.sub(r'<PM>', '<br><br>', text)
+    text = re.sub(r'<PO>', '<br>', text)
+    text = re.sub(r'<PN>', '<br>', text)
+    text = re.sub(r'<PR>', '<br><br>', text)
+    text = re.sub(r'<A>', '<br><br>', text)
     return text
 
 def verse_ref_to_tags(text):    
@@ -65,7 +69,7 @@ def strongs_ref_to_tags(text):
     return re.sub(r'([^\^—\-.;,\s\u201c\u2018"]+)<(M[GH][^>]+?)>', r'<\2>\1</\2>', text)
 
 def remove_continuing_quotes(text):
-    return re.sub(r'\+[^\w\s]', '', text)
+    return re.sub(r'[\+-][“‘]', '', text)
 
 def combine_strongs_tags(text):
     text = re.sub(r'</(M[GH][^>]+?)>(\s+)<\1>', r'\2', text)
@@ -79,7 +83,7 @@ def remove_unwanted_tags(text):
     tag_regs_to_keep = [
         r'M[^>]+',
         r'em',
-        # r'strong',
+        # r'strong', # bold is only ever used to bold first letter of sentences.
         r'small',
         r'br'
     ]
@@ -118,12 +122,17 @@ def parse_bible(file_path, output_folder):
     os.makedirs(os.path.dirname(output_folder), exist_ok=True)
     verses = []
     chapters = []
-    sub_heading = ''
-    prev_chapter = 1
-    prev_book = ''
+    sub_heading = []
     # test_file = open('bible/output/text.txt', 'w')
 
+    # previous_mode = ''
+
     for line in open(file_path, 'r').readlines():
+        line = line.strip()
+
+        # is_verse = line.startswith('<V>')
+        # is_poetry = line.startswith('<P>')
+
         line = line.replace('<LE>', '') # destroy optional long E tag.
         line = line.replace('<,>', '') # destroy 'superior comma' tag.
 
@@ -137,19 +146,20 @@ def parse_bible(file_path, output_folder):
 
         line = re.sub(r'\^', '', line) # caret was used to mark beginning of verse earlier to make regex work. Remove it afterward.
 
-        strongs_tag_reg = r'\w+<M[GH][^>]+?>'
-        words_with_tag_reg = r'\w*<[^\s]+>\w+?</[^\s]+>\w*'
-        words_with_format_tag = r'\w*\{[\w\s]*\}\w*'
-        word_reg = r'\w+'
-        other_tag_reg = r'<[^\s]+?>'
-        whitespace_reg = r'\s+'
-        # parts = re.findall(fr'{verse_tag_reg}|{strongs_tag_reg}|{words_with_format_tag}|{words_with_tag_reg}|{other_tag_reg}|{whitespace_reg}|{word_reg}', line)
+        # if is_poetry and previous_mode == 'V':
+        #     line = '<br>' + line
+        
+        # if is_verse:
+        #     previous_mode = 'V'
+        # elif is_poetry:
+        #     previous_mode = 'P'
 
-        # print(parts)
-        # input()
-
-        # verse_ref = ''.join(vr for vr in parts if is_verse_ref(vr))
-        # verse_text = ''.join(vt for vt in parts if is_verse_text(vt))
+        # strongs_tag_reg = r'\w+<M[GH][^>]+?>'
+        # words_with_tag_reg = r'\w*<[^\s]+>\w+?</[^\s]+>\w*'
+        # words_with_format_tag = r'\w*\{[\w\s]*\}\w*'
+        # word_reg = r'\w+'
+        # other_tag_reg = r'<[^\s]+?>'
+        # whitespace_reg = r'\s+'
 
         if '<verse_ref>' in line:
             vr_tag = re.search(r'<verse_ref><book>(\d+)</book><chapter>(\d+)</chapter><verse>(\d+)</verse></verse_ref>', line)
@@ -218,104 +228,18 @@ def parse_bible(file_path, output_folder):
                         bible_texts.append(BibleText(current_text))
                         current_text = None
 
-            # if book == 1 and chapter == 35 and verse == 22:
-            #     print('\n'.join((str(t.to_data()) for t in bible_texts)))
-            #     input()
-
-            # if book == 1 and chapter == 36 and verse == 1:
-            #     print('\n'.join((str(t.to_data()) for t in bible_texts)))
-            #     input()
-
-            # if book == 1 and chapter == 38 and verse == 7:
-            #     print('\n'.join((str(t.to_data()) for t in bible_texts)))
-            #     input()
-
-            # if book == 3 and chapter == 21 and verse == 14:
-            #     print('\n'.join((str(t.to_data()) for t in bible_texts)))
-            #     input()
-
-            # test_file.write(line + '\n')
-
-            # merge = False
-
-            # merged_parts = []
-            
-            # for part in parts:
-            #     if part == '<\\>':
-            #         merge = True
-                
-            #     if merge:
-            #         merged_parts[-1] = merged_parts[-1] + part
-
-            #     else:
-            #         merged_parts.append(part)
-
-            #     if part == '</>':
-            #         merge = False
-
-            # bible_texts = []
-
-            # match hebrew / greek tags
-            # current_text = ''
-
-            # for part in merged_parts:
-            #     if is_verse_text(part):
-            #         current_text = part
-
-            #     else:
-            #         current_text = replace_tags(current_text)
-
-            #         if is_lang_tag(part):
-            #             if not current_text:
-            #                 raise Exception(f'Language tag found with no preceeding text. {book}({get_bible_book(book)}) {chapter}:{verse}; {part}\n{merged_parts}')
-                        
-            #             tag = part[2:-1]
-
-            #             i = current_text.rfind(' ')
-            #             if i < 0:
-            #                 bible_texts.append(BibleText(current_text, tag))
-            #             else:
-
-            #                 front = current_text[:i]
-            #                 back = current_text[i:]
-
-            #                 # print(f'[{current_text}]')
-            #                 # print(f'[{front}]')
-            #                 # print(f'[{back}]')
-            #                 # input()
-                        
-            #                 if front:
-            #                     bible_texts.append(BibleText(front, ''))
-            #                 bible_texts.append(BibleText(back, tag))
-            #         else:
-            #             if current_text:
-            #                 bible_texts.append(BibleText(current_text, ''))
-
-            #         current_text = ''
-            
-            # if current_text:
-            #     bible_texts.append(BibleText(current_text, ''))
-
-            # merge adjacent BibleTexts with same dictionary code!
-            # merged_bible_texts = []
-            # for bible_text in bible_texts:                
-            #     if merged_bible_texts and merged_bible_texts[-1].dictionary_code == bible_text.dictionary_code:
-            #         merged_bible_texts[-1] = BibleText(merged_bible_texts[-1].text + bible_text.text, bible_text.dictionary_code)
-            #     else:
-            #         merged_bible_texts.append(bible_text)
-
-            verse_obj = BibleVerse(bible_texts, new_paragraph, sub_heading, verse, book, chapter)
+            verse_obj = BibleVerse(bible_texts, new_paragraph, '<br>'.join(sub_heading), verse, book, chapter)
             verses.append(verse_obj)
-            sub_heading = ''
+            sub_heading = []
 
             # v = f"{get_bible_book(book)} {chapter}:{verse}\n{verse_text}"
             # output_file.write(v + '\n')
             # print(v)
         elif is_sub_head(line):
-            match = re.match(r'^<SH>(.+)</SH>$', line)
-            sub_heading = match.group(1)
-            sh = f"---{sub_heading}---\n"
-            sub_heading = replace_tags(sub_heading)
+            match = re.match(r'^<S[SH]>(.+)</S[SH]>$', line)
+            sub_heading.append(remove_unwanted_tags(replace_tags(match.group(1))))
+            # sh = f"---{sub_heading}---\n"
+            # sub_heading = replace_tags(sub_heading)
             # output_file.write(sh + '\n')
             # print(sh)
 
